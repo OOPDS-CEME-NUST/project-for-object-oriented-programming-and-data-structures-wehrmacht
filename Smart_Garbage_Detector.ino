@@ -1,0 +1,74 @@
+#define BLYNK_PRINT Serial
+
+#include <SPI.h>
+#include <Ethernet.h>
+#include <ESP8266WiFi.h>
+#include <BlynkSimpleEsp8266.h>
+#define TRIGGERPIN 2
+#define ECHOPIN    4
+
+// Auth Token in the Blynk App.
+char auth[] = "0791a14df5a3444093b8fefe0965f5b6";
+
+// WiFi credentials.
+// Password "" for open networks.
+char ssid[] = "Wehrmacht";
+char pass[] = "12345678";
+
+
+WidgetLED ledgreen(12);
+WidgetLED ledred(13);
+
+void setup()
+{
+  // Debug console
+  Serial.begin(9600);
+pinMode(TRIGGERPIN, OUTPUT);
+  pinMode(ECHOPIN, INPUT);
+  Blynk.begin(auth, ssid, pass);
+  // Server Specification:
+  //Blynk.begin(auth, ssid, pass, "blynk-cloud.com", 8442);
+ //Blynk.begin(auth, ssid, pass, IPAddress(192,168,1,100), 8442);
+
+ 
+}
+
+void loop()
+{
+ 
+  long t, distance;
+  digitalWrite(TRIGGERPIN, LOW); 
+  delayMicroseconds(3);
+ 
+  digitalWrite(TRIGGERPIN, HIGH);
+  delayMicroseconds(12);
+ 
+  digitalWrite(TRIGGERPIN, LOW);
+
+
+   t=pulseIn(ECHOPIN,HIGH);
+   distance= t*340/20000;
+  delay(1000);
+
+
+  if(distance<5)
+  {
+    Serial.print("basket is full\n");
+    
+     ledred.on();
+     ledgreen.off();
+     Blynk.notify("you may collect your garbage bins now");
+     Blynk.email("ahmedfaizanaps@gmail.com","GARBAGE NOTIFICATION","Please collect your garbage bins");
+  }
+else
+  {
+   
+     ledgreen.on();
+     ledred.off();
+    
+  }
+  Blynk.run();
+
+  delay(1000);
+
+}
